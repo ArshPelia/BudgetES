@@ -1,0 +1,22 @@
+Create project: 
+    django-admin startproject <project_name>
+
+Create a Django App:
+    python manage.py startapp <app_name>
+
+Create Admin: 
+    python manage.py createsuperuser
+
+Convert Models to DB: 
+    python manage.py makemigrations
+
+Create Tables for models:
+    python manage.py migrate
+
+Run server:
+    python manage.py runserver
+
+Change Admin PW:
+    python manage.py changepassword <username>
+
+python manage.py collectstatic

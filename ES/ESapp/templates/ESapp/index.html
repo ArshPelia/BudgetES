@@ -1,0 +1,28 @@
+{% extends "ESapp/layout.html" %}
+{% load static %}
+{% block header %}
+<header>
+    <nav class="navbar">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'index' %}">Budget ES</a>
+            <div class="navbar-nav">
+                <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
+            </div>
+        </div>
+    </nav>
+</header>
+
+{% endblock %}
+
+
+{% block body %}
+    <div class="container">
+    </div>  
+    
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'ESapp/index.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+{% endblock %}
