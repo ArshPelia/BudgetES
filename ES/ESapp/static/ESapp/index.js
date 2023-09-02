@@ -6,5 +6,21 @@
    */
 // Wait for the DOM content to load before attaching event listeners
 document.addEventListener('DOMContentLoaded', function() {
-
+    loadhome();
 });
+
+// Switches between different views by showing/hiding elements
+function switchView(viewId) {
+    const views = ['#allquestions-view', '#compose-view', '#question-view', '#import-view'];
+    views.forEach(view => {
+        if (view === viewId) {
+            document.querySelector(view).style.display = 'block';
+        } else {
+            document.querySelector(view).style.display = 'none';
+        }
+    });
+}
+
+function loadhome(){
+    switchView('#home-view');
+}
