@@ -7,4 +7,10 @@ class User(AbstractUser):
     ret_fund = models.DecimalField(default= None, max_digits=10, decimal_places=2, null=True)
     emg_fund = models.DecimalField(default= None, max_digits=10, decimal_places=2, null=True)
     newuser = models.BooleanField(default=True)
-    pass
+    
+
+class Debt(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    account = models.CharField(max_length=200)
+    interest = models.DecimalField(default= None, max_digits=10, decimal_places=2, null=True)
+    min_pay = models.DecimalField(default= None, max_digits=10, decimal_places=2, null=True)
