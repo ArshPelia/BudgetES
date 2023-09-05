@@ -10,11 +10,12 @@ from django.shortcuts import HttpResponse, HttpResponseRedirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import User
+from .models import User, Debt
+from .serializers import DebtSerializer
+
 
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-# from .serializers import QuestionSerializer, NoteSerializer
 
 from requests.exceptions import HTTPError, ConnectionError, Timeout, RequestException
 # Load environment variables from file
@@ -99,3 +100,11 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "ESapp/register.html")
+
+
+@login_required
+@api_view(['GET'])
+def getAllDebt(request):
+    debts = Debt.objects.all()
+    serializer = DebtSerializer(debts, many=True)
+    return Response(serializer.data)

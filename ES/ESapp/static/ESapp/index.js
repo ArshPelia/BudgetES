@@ -32,7 +32,48 @@ function loadHome(){
 
 function loadDebt(){
   switchView('#debt-view');
+
+  fetch('/debt/all')
+  .then(response => response.json())
+  .then(debt => {
+      debtall = debt;
+      const table = createDebtTable(debt);
+      const alldebtView = document.querySelector('#debt-view');
+      alldebtView.appendChild(table);
+  })
+  .catch(error => {
+      console.error('Error:', error);
+      alert('An error occurred while loading debt.');
+  });
 }
+
+// Creates and populates a Debt table
+function createDebtTable(debts) {
+    console.log('creating debt table')
+    
+    const table = document.createElement('table');
+    table.classList.add('table', 'table-striped', 'table-hover');
+
+    const headerRow = table.insertRow();
+    const headers = ['account', 'amount', 'interest', 'min_pay'];
+    headers.forEach(headerText => {
+        const headerCell = document.createElement('th');
+        headerCell.textContent = headerText;
+        headerRow.appendChild(headerCell);
+    });
+
+    debts.forEach(debt => {
+        const row = table.insertRow();
+        const cells = [debt.account, debt.amount, debt.interest, debt.min_pay];
+        cells.forEach(cellValue => {
+            const cell = row.insertCell();
+            cell.textContent = cellValue;
+        });
+    });
+
+    return table;
+}
+
 
 function addDebt(){
     switchView('#adddebt-view');
@@ -54,7 +95,7 @@ function addDebtAccount() {
     const interest_rate = document.querySelector('#interest_rate').value;
     const min_payment = document.querySelector('#min_payment').value;
 
-    // Send post request to upload a new question
+    // Send post request to upload a new debt
     fetch('/debt/create', {
         method: 'POST',
         headers: {
@@ -76,7 +117,7 @@ function addDebtAccount() {
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('An error occurred while creating the question.');
+        alert('An error occurred while creating the debt.');
     });
 
     return false;
