@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Switches between different views by showing/hiding elements
 function switchView(viewId) {
-    const views = ['#home-view','#debt-view','#debtadd-view'];
+    const views = ['#home-view','#debt-view'];
     views.forEach(view => {
         if (view === viewId) {
             document.querySelector(view).style.display = 'block';
@@ -27,10 +27,5 @@ function loadhome(){
 
 function loadDebt(){
   switchView('#debt-view');
-
-}
-
-function loadDebtAdd(){
-  switchView('#debtadd-view');
 
 }

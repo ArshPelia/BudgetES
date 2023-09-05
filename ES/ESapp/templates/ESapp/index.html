@@ -3,11 +3,10 @@
 {% block header %}
 <header>
     <nav class="navbar">
-        <div class="container">
-            <a class="navbar-brand" href="{% url 'index' %}">Budget ES</a>
-            <div class="navbar-nav">
-                <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
-            </div>
+        <a class="navbar-brand" href="{% url 'index' %}">Budget ES</a>
+        <div class="navbar-nav">
+            <button class="btn btn-sm btn-outline-primary" id="debt">View Debt</button>
+            <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
         </div>
     </nav>
 </header>
@@ -22,10 +21,7 @@
             <h3>Home</h3>
         </div>
         <div id="debt-view">
-            <h3>debt</h3>
-            <div id="debtadd-view">
-                <h3>debtadd</h3>
-            </div>
+            <h3>Debt</h3>
         </div>
 
     </div>  
@@ -34,6 +30,6 @@
 
 {% block script %}
     <script src="{% static 'ESapp/index.js' %}"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
 
 {% endblock %}
