@@ -9,9 +9,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function attachEventListeners() {
     document.querySelector('#viewDebt').addEventListener('click', loadDebt);
+    document.querySelector('#viewImport').addEventListener('click', loadImport);
+    document.querySelector('#importStatement').addEventListener('click', importStatement);
     document.querySelector('#addDebt').addEventListener('click', addDebt);
     document.querySelector('#adddebt-form').onsubmit = addDebtAccount;
 }
+
+function loadHome() {
+    switchView('#home-view');
+}
+
 
 function loadDebt() {
     switchView('#debt-view');
@@ -34,6 +41,11 @@ function loadDebt() {
             console.error('Error:', error);
             alert('An error occurred while loading debt.');
         });
+}
+
+function loadImport() {
+    switchView('#import-view');
+
 }
 
 // Create and populate a Debt table
@@ -112,7 +124,7 @@ function addDebtAccount() {
 
 // Switches between different views by showing/hiding elements
 function switchView(viewId) {
-    const views = ['#home-view', '#debt-view', '#adddebt-view'];
+    const views = ['#home-view', '#debt-view', '#adddebt-view', '#import-view'];
     views.forEach(view => {
         if (view === viewId) {
             document.querySelector(view).style.display = 'block';
@@ -122,6 +134,39 @@ function switchView(viewId) {
     });
 }
 
-function loadHome() {
-    switchView('#home-view');
+function importStatement() {
+    // Create an input element for file upload
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.xlsx'; // Allow only Excel files
+
+    // Trigger file input click event when the button is clicked
+    fileInput.addEventListener('change', function(event) {
+        const file = event.target.files[0]; // Get the selected file
+
+        if (!file) {
+            return; // No file selected, do nothing
+        }
+
+        // Read the Excel file
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const data = e.target.result;
+
+            // Parse the Excel data using SheetJS
+            const workbook = XLSX.read(data, { type: 'binary' });
+            const sheetName = workbook.SheetNames[0]; // Assuming you have a single sheet
+
+            // Convert Excel data to JSON
+            const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+            // Process jsonData as needed (e.g., send it to the server or display it)
+            console.log(jsonData);
+        };
+
+        reader.readAsBinaryString(file);
+    });
+
+    // Trigger the file input dialog
+    fileInput.click();
 }

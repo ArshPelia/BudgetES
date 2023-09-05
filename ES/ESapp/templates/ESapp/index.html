@@ -6,6 +6,7 @@
         <a class="navbar-brand" href="{% url 'index' %}">Budget ES</a>
         <div class="navbar-nav">
             <button class="btn btn-sm btn-outline-primary" id="viewDebt">View Debt</button>
+            <button class="btn btn-sm btn-outline-primary" id="viewImport">Import Data</button>
             <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
         </div>
     </nav>
@@ -25,6 +26,13 @@
             <h1>Debt</h1>
             <div class="container">
                 <button class="btn btn-sm btn-outline-primary" id="addDebt">Add Debt</button>
+            </div>
+        </div>
+
+        <div id="import-view">
+            <h1>Import</h1>
+            <div class="container">
+                <button class="btn btn-sm btn-outline-primary" id="importStatement">Import Statement</button>
             </div>
         </div>
 
@@ -59,5 +67,7 @@
 {% block script %}
     <script src="{% static 'ESapp/index.js' %}"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.0/xlsx.full.min.js"></script>
+
 
 {% endblock %}
