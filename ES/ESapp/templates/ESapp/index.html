@@ -5,7 +5,7 @@
     <nav class="navbar">
         <a class="navbar-brand" href="{% url 'index' %}">Budget ES</a>
         <div class="navbar-nav">
-            <button class="btn btn-sm btn-outline-primary" id="debt">View Debt</button>
+            <button class="btn btn-sm btn-outline-primary" id="viewDebt">View Debt</button>
             <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
         </div>
     </nav>
@@ -18,10 +18,38 @@
     <div class="container">
         
         <div id="home-view">
-            <h3>Home</h3>
+            <h1>Home</h1>
         </div>
+
         <div id="debt-view">
-            <h3>Debt</h3>
+            <h1>Debt</h1>
+            <div class="container">
+                <button class="btn btn-sm btn-outline-primary" id="addDebt">Add Debt</button>
+            </div>
+        </div>
+
+        <div id="adddebt-view">
+            <h1>Add Debt</h1>
+            <form id="adddebt-form">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="amount" class="form-label">Amount</label>
+                    <input type="number" class="form-control" id="amount" step="any" required>
+                </div>
+                <div class="mb-3">
+                    <label for="interest_rate" class="form-label">Interest Rate (%)</label>
+                    <input type="number" class="form-control" id="interest_rate" step="any" required>
+                </div>
+                <div class="mb-3">
+                    <label for="min_payment" class="form-label">Minimum Payment (%)</label>
+                    <input type="number" class="form-control" id="min_payment" step="any" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Create</button>
+            </form>
         </div>
 
     </div>  
