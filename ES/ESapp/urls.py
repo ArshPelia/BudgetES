@@ -11,6 +11,6 @@ urlpatterns = [
 
     # API Routes
     path("debt/all", views.getAllDebt, name="getAllDebt"),
-    # path("debt/create", views.create_debt, name="create_debt"),
+    path("debt/add", views.addDebt, name="addDebt"),
 
 ]

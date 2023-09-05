@@ -1,56 +1,43 @@
-/* when the DOM content of the page has been loaded, 
-  we attach event listeners to each of the buttons. 
-  
-  Ensures use of the function to only run the code once all content has loaded
-   
-   */
+// Global variable to store the loaded debt data
+let debtall = [];
+
 // Wait for the DOM content to load before attaching event listeners
 document.addEventListener('DOMContentLoaded', function() {
-    document.querySelector('#viewDebt').addEventListener('click', loadDebt);
-    document.querySelector('#addDebt').addEventListener('click', addDebt);
-    document.querySelector('#adddebt-form').onsubmit = addDebtAccount;
-
-
+    attachEventListeners();
     loadHome();
 });
 
-// Switches between different views by showing/hiding elements
-function switchView(viewId) {
-    const views = ['#home-view','#debt-view','#adddebt-view'];
-    views.forEach(view => {
-        if (view === viewId) {
-            document.querySelector(view).style.display = 'block';
-        } else {
-            document.querySelector(view).style.display = 'none';
-        }
-    });
+function attachEventListeners() {
+    document.querySelector('#viewDebt').addEventListener('click', loadDebt);
+    document.querySelector('#addDebt').addEventListener('click', addDebt);
+    document.querySelector('#adddebt-form').onsubmit = addDebtAccount;
 }
 
-function loadHome(){
-    switchView('#home-view');
+function loadDebt() {
+    switchView('#debt-view');
+
+    fetch('/debt/all')
+        .then(response => response.json())
+        .then(debt => {
+            debtall = debt;
+            const table = createDebtTable(debt);
+            const debtView = document.querySelector('#debt-view');
+            debtView.innerHTML = `
+                <h1>Your Debt</h1>
+                <button class="btn btn-sm btn-outline-primary" id="addDebt">Add Debt</button>
+            `; // Clear existing content
+            document.querySelector('#addDebt').addEventListener('click', addDebt);
+           
+            debtView.appendChild(table);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while loading debt.');
+        });
 }
 
-function loadDebt(){
-  switchView('#debt-view');
-
-  fetch('/debt/all')
-  .then(response => response.json())
-  .then(debt => {
-      debtall = debt;
-      const table = createDebtTable(debt);
-      const alldebtView = document.querySelector('#debt-view');
-      alldebtView.appendChild(table);
-  })
-  .catch(error => {
-      console.error('Error:', error);
-      alert('An error occurred while loading debt.');
-  });
-}
-
-// Creates and populates a Debt table
+// Create and populate a Debt table
 function createDebtTable(debts) {
-    console.log('creating debt table')
-    
     const table = document.createElement('table');
     table.classList.add('table', 'table-striped', 'table-hover');
 
@@ -74,12 +61,11 @@ function createDebtTable(debts) {
     return table;
 }
 
-
-function addDebt(){
+function addDebt() {
     switchView('#adddebt-view');
-  }
+}
 
-// Clears form fields and removes validation classes
+// Clear form fields and remove validation classes
 function clearFormFields(fieldIds) {
     fieldIds.forEach(id => {
         const field = document.querySelector(`#${id}`);
@@ -96,7 +82,7 @@ function addDebtAccount() {
     const min_payment = document.querySelector('#min_payment').value;
 
     // Send post request to upload a new debt
-    fetch('/debt/create', {
+    fetch('/debt/add', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -105,7 +91,7 @@ function addDebtAccount() {
             name: name,
             amount: amount,
             interest_rate: interest_rate,
-            min_payment: min_payment,  
+            min_payment: min_payment,
         })
     })
     .then(response => response.json())
@@ -113,7 +99,8 @@ function addDebtAccount() {
         // Print result
         alert(JSON.stringify(result));
         clearFormFields(['name', 'amount', 'interest_rate', 'min_payment']);
-
+        // Reload debt data after adding
+        loadDebt();
     })
     .catch(error => {
         console.error('Error:', error);
@@ -121,4 +108,20 @@ function addDebtAccount() {
     });
 
     return false;
+}
+
+// Switches between different views by showing/hiding elements
+function switchView(viewId) {
+    const views = ['#home-view', '#debt-view', '#adddebt-view'];
+    views.forEach(view => {
+        if (view === viewId) {
+            document.querySelector(view).style.display = 'block';
+        } else {
+            document.querySelector(view).style.display = 'none';
+        }
+    });
+}
+
+function loadHome() {
+    switchView('#home-view');
 }

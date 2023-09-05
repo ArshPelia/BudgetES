@@ -108,3 +108,39 @@ def getAllDebt(request):
     debts = Debt.objects.all()
     serializer = DebtSerializer(debts, many=True)
     return Response(serializer.data)
+
+
+@csrf_exempt
+@login_required
+def addDebt(request):
+
+    # Creating a new Debt must be via POST
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
+
+    try:
+        data = json.loads(request.body)
+        user = request.user
+        name = data.get("name", "")
+        amount = data.get("amount", "")
+        interest_rate = data.get("interest_rate", "")
+        min_payment = data.get("min_payment", "")
+
+        # Create the Debt object
+        debt = Debt.objects.create(
+            account=name,
+            user=user,
+            amount=amount,
+            interest=interest_rate,
+            min_pay=min_payment,
+        )
+
+        # You can perform additional actions if needed
+        # For example, you might want to add tags to the Debt or associate it with the current user
+
+        # Redirect the user to the index page with a success message
+        return JsonResponse({'message': 'Debt created successfully.'}, status=201)
+    except Exception as e:
+        # Handle any errors that occur during Debt creation
+        error_message = str(e)
+        return JsonResponse({'error': error_message}, status=400)
