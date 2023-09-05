@@ -27,6 +27,7 @@ as long as the user is signed in, this function renders the ESapp/inbox.html tem
 
 """
 
+
 def index(request):
 
     # Authenticated users view their inbox
@@ -36,6 +37,7 @@ def index(request):
     # Everyone else is prompted to sign in
     else:
         return HttpResponseRedirect(reverse("login"))
+
 
 def login_view(request):
     if request.method == "POST":
@@ -56,13 +58,21 @@ def login_view(request):
     else:
         return render(request, "ESapp/login.html")
 
+
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("index"))
 
+
 def register(request):
     if request.method == "POST":
         email = request.POST["email"]
+        age = request.POST["age"]
+        ret_fund = request.POST["ret_fund"]
+        emg_fund = request.POST["emg_fund"]
+        print(str(age))
+        print(str(ret_fund))
+        print(str(emg_fund))
 
         # Ensure password matches confirmation
         password = request.POST["password"]
@@ -74,7 +84,11 @@ def register(request):
 
         # Attempt to create new user
         try:
-            user = User.objects.create_user(email, email, password)
+            user = User.objects.create_user(
+                username=email, email=email, password=password)
+            user.age = age  # Set age field
+            user.ret_fund = ret_fund  # Set ret_fund field
+            user.emg_fund = emg_fund  # Set emg_fund field
             user.save()
         except IntegrityError as e:
             print(e)
@@ -85,4 +99,3 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "ESapp/register.html")
-
