@@ -161,7 +161,7 @@ def processStatement(request):
             df = pd.DataFrame(data)
             # Process the DataFrame as needed
             # ...
-            print(df.head())
+            preprocess(df)
             # Return a response, for example:
             response_data = {'message': 'Statement processed successfully'}
             return JsonResponse(response_data)
@@ -169,3 +169,30 @@ def processStatement(request):
             return JsonResponse({'error': str(e)}, status=400)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
+def preprocess(df):
+    current_savings = df[df['Withdrawal'] != 0]['Withdrawal'].sum(
+    ) - df[df['Deposit'] != 0]['Deposit'].sum()
+    total_spent = df[df['Withdrawal'] != 0]['Withdrawal'].sum()
+    total_deposited = df[df['Deposit'] != 0]['Deposit'].sum()
+
+    avg_weekly_deposits = df['Deposit'].sum() / df['Week'].nunique()
+    avg_weekly_withdrawals = df['Withdrawal'].sum() / df['Week'].nunique()
+    savings_per_week = avg_weekly_deposits - avg_weekly_withdrawals
+
+    avg_monthly_deposits = df['Deposit'].sum() / df['Month'].nunique()
+    avg_monthly_withdrawals = df['Withdrawal'].sum() / df['Month'].nunique()
+    savings_per_month = avg_monthly_deposits - avg_monthly_withdrawals
+
+    monthly_income = avg_monthly_deposits
+
+    total_invested = df[df['Category'] == 'Investment']['Deposit'].sum()
+
+    print(current_savings)
+    print(total_spent)
+    print(total_deposited)
+    print(savings_per_week)
+    print(savings_per_month)
+    print(monthly_income)
+    print(total_invested)
