@@ -194,8 +194,23 @@ function importStatement() {
             // Convert Excel data to JSON
             const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
 
-            // Process jsonData as needed (e.g., send it to the server or display it)
-            console.log(jsonData);
+            // Send the JSON data to the server
+            fetch('/statement/process', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(jsonData), // Send the JSON data
+            })
+            .then(response => response.json())
+            .then(result => {
+                // Process the response from the server as needed
+                console.log(result);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while processing the statement.');
+            });
         };
 
         reader.readAsBinaryString(file);

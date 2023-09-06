@@ -21,6 +21,10 @@ from requests.exceptions import HTTPError, ConnectionError, Timeout, RequestExce
 # Load environment variables from file
 from dotenv import load_dotenv
 
+import pandas as pd
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
 # Create your views here.
 
 """ 
@@ -144,3 +148,24 @@ def addDebt(request):
         # Handle any errors that occur during Debt creation
         error_message = str(e)
         return JsonResponse({'error': error_message}, status=400)
+
+
+# Use this decorator to disable CSRF protection for this view, adjust as needed for your application's security requirements.
+@csrf_exempt
+def processStatement(request):
+    if request.method == 'POST':
+        try:
+            # Assuming the data is sent as JSON
+            data = json.loads(request.body.decode('utf-8'))
+            # Convert the JSON data to a pandas DataFrame
+            df = pd.DataFrame(data)
+            # Process the DataFrame as needed
+            # ...
+            print(df.head())
+            # Return a response, for example:
+            response_data = {'message': 'Statement processed successfully'}
+            return JsonResponse(response_data)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)

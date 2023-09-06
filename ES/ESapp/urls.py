@@ -13,4 +13,7 @@ urlpatterns = [
     path("debt/all", views.getAllDebt, name="getAllDebt"),
     path("debt/add", views.addDebt, name="addDebt"),
 
+    path("statement/process", views.processStatement, name="processStatement"),
+
+
 ]
