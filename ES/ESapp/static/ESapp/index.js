@@ -16,46 +16,43 @@ function attachEventListeners() {
     document.querySelector('#adddebt-form').onsubmit = addDebtAccount;
 }
 
+// Clear form fields and remove validation classes
+function clearFormFields(fieldIds) {
+    fieldIds.forEach(id => {
+        const field = document.querySelector(`#${id}`);
+        field.value = '';
+        field.classList.remove('is-valid', 'is-invalid');
+    });
+}
+
+
+// Switches between different views by showing/hiding elements
+function switchView(viewId) {
+    const views = ['#home-view', '#debt-view', '#adddebt-view', '#import-view', '#debt-details-view'];
+    views.forEach(view => {
+        if (view === viewId) {
+            document.querySelector(view).style.display = 'block';
+        } else {
+            document.querySelector(view).style.display = 'none';
+        }
+    });
+}
+
 function loadHome() {
     switchView('#home-view');
 }
 
-
-function loadDebt() {
-    switchView('#debt-view');
-
-    fetch('/debt/all')
-        .then(response => response.json())
-        .then(debt => {
-            debtall = debt;
-            const table = createDebtTable(debt);
-            const debtView = document.querySelector('#debt-view');
-            debtView.innerHTML = `
-                <h1>Your Debt</h1>
-                <button class="btn btn-sm btn-outline-primary" id="addDebt">Add Debt</button>
-            `; // Clear existing content
-            document.querySelector('#addDebt').addEventListener('click', addDebt);
-           
-            debtView.appendChild(table);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while loading debt.');
-        });
-}
-
 function loadImport() {
     switchView('#import-view');
-
 }
 
-// Create and populate a Debt table
 function createDebtTable(debts) {
     const table = document.createElement('table');
     table.classList.add('table', 'table-striped', 'table-hover');
 
     const headerRow = table.insertRow();
-    const headers = ['account', 'amount', 'interest', 'min_pay'];
+    const headers = ['account', 'amount', 'interest', 'min_pay', 'actions'];
+    
     headers.forEach(headerText => {
         const headerCell = document.createElement('th');
         headerCell.textContent = headerText;
@@ -64,10 +61,22 @@ function createDebtTable(debts) {
 
     debts.forEach(debt => {
         const row = table.insertRow();
-        const cells = [debt.account, debt.amount, debt.interest, debt.min_pay];
-        cells.forEach(cellValue => {
+        const cells = [debt.account, debt.amount, debt.interest, debt.min_pay, ''];
+        
+        cells.forEach((cellValue, index) => {
             const cell = row.insertCell();
             cell.textContent = cellValue;
+            
+            // Add a button to the last cell of each row for viewing details
+            if (index === cells.length - 1) {
+                const viewButton = document.createElement('button');
+                viewButton.textContent = 'View Details';
+                viewButton.classList.add('btn', 'btn-sm', 'btn-primary');
+                viewButton.addEventListener('click', function() {
+                    loadDebtDetails(debt); // Load details when the button is clicked
+                });
+                cell.appendChild(viewButton);
+            }
         });
     });
 
@@ -76,15 +85,6 @@ function createDebtTable(debts) {
 
 function addDebt() {
     switchView('#adddebt-view');
-}
-
-// Clear form fields and remove validation classes
-function clearFormFields(fieldIds) {
-    fieldIds.forEach(id => {
-        const field = document.querySelector(`#${id}`);
-        field.value = '';
-        field.classList.remove('is-valid', 'is-invalid');
-    });
 }
 
 function addDebtAccount() {
@@ -123,15 +123,48 @@ function addDebtAccount() {
     return false;
 }
 
-// Switches between different views by showing/hiding elements
-function switchView(viewId) {
-    const views = ['#home-view', '#debt-view', '#adddebt-view', '#import-view'];
-    views.forEach(view => {
-        if (view === viewId) {
-            document.querySelector(view).style.display = 'block';
-        } else {
-            document.querySelector(view).style.display = 'none';
-        }
+function loadDebt() {
+    switchView('#debt-view');
+
+    fetch('/debt/all')
+        .then(response => response.json())
+        .then(debt => {
+            debtall = debt;
+            const table = createDebtTable(debt);
+            const debtView = document.querySelector('#debt-view');
+            debtView.innerHTML = `
+                <h1>Your Debt</h1>
+                <button class="btn btn-sm btn-outline-primary" id="addDebt">Add Debt</button>
+            `; // Clear existing content
+            document.querySelector('#addDebt').addEventListener('click', addDebt);
+           
+            debtView.appendChild(table);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while loading debt.');
+        });
+}
+
+function loadDebtDetails(debt) {
+    // Switch to the debt details view
+    switchView('#debt-details-view');
+    
+    // Create and populate a container to display debt details
+    const debtDetailsContainer = document.querySelector('#debt-details-view');
+    debtDetailsContainer.innerHTML = `
+        <h2>${debt.account} Details</h2>
+        <p>Account: ${debt.account}</p>
+        <p>Amount: ${debt.amount}</p>
+        <p>Interest Rate: ${debt.interest}</p>
+        <p>Minimum Payment: ${debt.min_pay}</p>
+        <!-- Add more details as needed -->
+        <button class="btn btn-sm btn-primary" id="back-to-debt">Back to Debt</button>
+    `;
+
+    // Add an event listener to the "Back to Debt" button
+    document.querySelector('#back-to-debt').addEventListener('click', function() {
+        loadDebt(); // Go back to the debt table view
     });
 }
 
