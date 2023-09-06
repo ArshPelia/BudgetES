@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadHome();
 });
 
+
 function attachEventListeners() {
     document.querySelector('#viewDebt').addEventListener('click', loadDebt);
     document.querySelector('#viewImport').addEventListener('click', loadImport);
