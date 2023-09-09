@@ -193,6 +193,7 @@ function importStatement() {
 
             // Convert Excel data to JSON
             const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+            console.log(JSON.stringify(jsonData))
 
             // Send the JSON data to the server
             fetch('/statement/process', {

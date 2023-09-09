@@ -159,6 +159,7 @@ def processStatement(request):
             data = json.loads(request.body.decode('utf-8'))
             # Convert the JSON data to a pandas DataFrame
             df = pd.DataFrame(data)
+            print(df)
             # Process the DataFrame as needed
             # ...
             preprocess(df)
