@@ -195,43 +195,45 @@ def processStatement(request):
             else:
                 return JsonResponse({'error': 'No file was uploaded'}, status=400)
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
+            return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 
 def preprocess(df):
-    # Clean column names by stripping leading and trailing whitespace
-    df.columns = df.columns.str.strip()
-    # replace NaN with 0, inplace=True means it will change the original dataframe
-    df.replace(np.nan, 0, inplace=True)
+    try:
+        # Clean column names by stripping leading and trailing whitespace
+        df.columns = df.columns.str.strip()
+        # Replace NaN with 0
+        df.fillna(0, inplace=True)
 
-    print(df)
+        # Convert the date column to a datetime format
+        df['Date'] = pd.to_datetime(df['Date'])
+        df['Week'] = df['Date'].dt.isocalendar().week
+        df['Month'] = df['Date'].dt.month
+        df['Year'] = df['Date'].dt.year
 
-    # convert the date column to a datetime format
-    df['Date'] = pd.to_datetime(df['Date'])
-    df['Week'] = df['Date'].dt.isocalendar().week
-    df['Month'] = df['Date'].dt.month
-    df['Year'] = df['Date'].dt.year
+        current_savings = df[df['Withdrawal'] != 0]['Withdrawal'].sum(
+        ) - df[df['Deposit'] != 0]['Deposit'].sum()
+        total_spent = df[df['Withdrawal'] != 0]['Withdrawal'].sum()
+        total_deposited = df[df['Deposit'] != 0]['Deposit'].sum()
 
-    current_savings = df[df['Withdrawal'] != 0]['Withdrawal'].sum(
-    ) - df[df['Deposit'] != 0]['Deposit'].sum()
-    total_spent = df[df['Withdrawal'] != 0]['Withdrawal'].sum()
-    total_deposited = df[df['Deposit'] != 0]['Deposit'].sum()
+        avg_weekly_deposits = df['Deposit'].sum() / df['Week'].nunique()
+        avg_weekly_withdrawals = df['Withdrawal'].sum() / df['Week'].nunique()
+        savings_per_week = avg_weekly_deposits - avg_weekly_withdrawals
 
-    avg_weekly_deposits = df['Deposit'].sum() / df['Week'].nunique()
-    avg_weekly_withdrawals = df['Withdrawal'].sum() / df['Week'].nunique()
-    savings_per_week = avg_weekly_deposits - avg_weekly_withdrawals
+        avg_monthly_deposits = df['Deposit'].sum() / df['Month'].nunique()
+        avg_monthly_withdrawals = df['Withdrawal'].sum(
+        ) / df['Month'].nunique()
+        savings_per_month = avg_monthly_deposits - avg_monthly_withdrawals
 
-    avg_monthly_deposits = df['Deposit'].sum() / df['Month'].nunique()
-    avg_monthly_withdrawals = df['Withdrawal'].sum() / df['Month'].nunique()
-    savings_per_month = avg_monthly_deposits - avg_monthly_withdrawals
+        monthly_income = avg_monthly_deposits
 
-    monthly_income = avg_monthly_deposits
-
-    print(current_savings)
-    print(total_spent)
-    print(total_deposited)
-    print(savings_per_week)
-    print(savings_per_month)
-    print(monthly_income)
+        print(f'Current Savings: {current_savings}')
+        print(f'Total Spent: {total_spent}')
+        print(f'Total Deposited: {total_deposited}')
+        print(f'Savings Per Week: {savings_per_week}')
+        print(f'Savings Per Month: {savings_per_month}')
+        print(f'Monthly Income: {monthly_income}')
+    except Exception as e:
+        raise Exception(f'Error in preprocessing: {str(e)}')
