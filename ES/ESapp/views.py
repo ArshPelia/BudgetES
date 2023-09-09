@@ -150,7 +150,6 @@ def addDebt(request):
         return JsonResponse({'error': error_message}, status=400)
 
 
-# Use this decorator to disable CSRF protection for this view, adjust as needed for your application's security requirements.
 @csrf_exempt
 def processStatement(request):
     if request.method == 'POST':
@@ -158,17 +157,29 @@ def processStatement(request):
             # Check if a file is included in the request
             if 'file' in request.FILES:
                 uploaded_file = request.FILES['file']
-                # Process the uploaded file
-                # Modify this based on your file format (e.g., .xlsx)
-                df = pd.read_csv(uploaded_file)
-                print(df)
+                colOrder = request.POST.get("colOrder", "")
 
-                # Process the DataFrame as needed
-                preprocess(df)
+                if uploaded_file.content_type in ['text/csv', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']:
+                    # Read the file into a Pandas DataFrame based on content type
+                    if uploaded_file.content_type == 'text/csv':
+                        df = pd.read_csv(uploaded_file)
+                    elif uploaded_file.content_type in ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']:
+                        df = pd.read_excel(uploaded_file)
+                    else:
+                        return JsonResponse({'error': 'Unsupported file format. Please upload a CSV or Excel file.'}, status=400)
 
-                # Return a response
-                response_data = {'message': 'Statement processed successfully'}
-                return JsonResponse(response_data)
+                    print(df)
+                    print(colOrder)
+
+                    # Process the DataFrame as needed
+                    # preprocess(df)
+
+                    # Return a response
+                    response_data = {
+                        'message': 'Statement processed successfully'}
+                    return JsonResponse(response_data)
+                else:
+                    return JsonResponse({'error': 'Unsupported file format. Please upload a CSV or Excel file.'}, status=400)
             else:
                 return JsonResponse({'error': 'No file was uploaded'}, status=400)
         except Exception as e:
@@ -177,7 +188,7 @@ def processStatement(request):
         return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 
-headerlist = ['Date', 'Desc', 'Withdrawal', 'Deposit', 'Balance']
+# headerlist = ['Date', 'Desc', 'Withdrawal', 'Deposit', 'Balance']
 
 
 def preprocess(df):

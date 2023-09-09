@@ -11,9 +11,10 @@ document.addEventListener('DOMContentLoaded', function() {
 function attachEventListeners() {
     document.querySelector('#viewDebt').addEventListener('click', loadDebt);
     document.querySelector('#viewImport').addEventListener('click', loadImport);
-    document.querySelector('#importStatement').addEventListener('click', importStatement);
+    // document.querySelector('#importStatement').addEventListener('click', importStatement);
     document.querySelector('#addDebt').addEventListener('click', addDebt);
     document.querySelector('#adddebt-form').onsubmit = addDebtAccount;
+    document.querySelector('#import-form').onsubmit = importStatement;
 }
 
 // Clear form fields and remove validation classes
@@ -168,40 +169,45 @@ function loadDebtDetails(debt) {
     });
 }
 
-function importStatement() {
-    // Create an input element for file upload
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    // fileInput.accept = '.xlsx'; // Allow only Excel files
+function importStatement(event) {
+    event.preventDefault(); // Prevent the default form submission behavior
 
-    // Trigger file input click event when the button is clicked
-    fileInput.addEventListener('change', function(event) {
-        const file = event.target.files[0]; // Get the selected file
+    const fileInput = document.querySelector('#fileInput'); // Add an id to your file input
+    const colOrder = document.querySelector('#colOrder').value;
 
-        if (!file) {
-            return; // No file selected, do nothing
-        }
+    if (!fileInput.files[0]) {
+        alert('Please select a file to upload.');
+        return;
+    }
 
-        // Create a FormData object
-        const formData = new FormData();
-        formData.append('file', file); // Append the file to the FormData object
+    // Validate the column order
+    const requiredColumns = ['Date', 'Desc', 'Withdrawal', 'Deposit', 'Balance'];
+    const inputColumns = colOrder.split(',').map(column => column.trim());
 
-        // Send the file to the server
-        fetch('/statement/process', {
-            method: 'POST',
-            body: formData, // Send the FormData object with the file
-        })
-        .then(response => response.json())
-        .then(result => {
-            // Process the response from the server as needed
-            console.log(result);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while processing the statement.');
-        });
+    if (!requiredColumns.every(column => inputColumns.includes(column))) {
+        alert('Invalid column order. Please provide all of the required columns: Date, Desc, Withdrawal, Deposit, Balance.');
+        return;
+    }
+    
+
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]); // Append the file to the FormData object
+    formData.append('colOrder', colOrder); // Append other form fields if needed
+
+    // Send the file to the server
+    fetch('/statement/process', {
+        method: 'POST',
+        body: formData,
+    })
+    .then(response => response.json())
+    .then(result => {
+        // Process the response from the server as needed
+        console.log(result);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while processing the statement.');
     });
 
-    // Trigger the file input dialog
-    fileInput.click();
+    return false
 }

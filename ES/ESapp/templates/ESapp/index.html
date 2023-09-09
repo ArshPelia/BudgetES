@@ -36,9 +36,19 @@
 
         <div id="import-view">
             <h1>Import</h1>
-            <div class="container">
-                <button class="btn btn-sm btn-outline-primary" id="importStatement">Import Statement</button>
-            </div>
+            <form id="import-form">
+                <p>
+                    You may upload a csv file containing account activity. (Commonly found on bank websites).
+                    Please define the column order of your statement for the following columns: 
+                    Date, Desc, Withdrawal, Deposit, Balance.
+                </p>
+                <div class="mb-3">
+                    <label for="colOrder" class="form-label">Column Order (Comma seperated)</label>
+                    <input type="file" class="form-control" id="fileInput" required>
+                    <input type="text" class="form-control" id="colOrder" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Import Statement</button>
+            </form> 
         </div>
 
         <div id="adddebt-view">
