@@ -188,7 +188,11 @@ function importStatement(event) {
         alert('Invalid column order. Please provide all of the required columns: Date, Desc, Withdrawal, Deposit, Balance.');
         return;
     }
-    
+
+    if (inputColumns.length > 5) {
+        alert('You cannot specify more than 5 columns.');
+        return;
+    }
 
     const formData = new FormData();
     formData.append('file', fileInput.files[0]); // Append the file to the FormData object
