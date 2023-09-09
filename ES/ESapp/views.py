@@ -168,11 +168,20 @@ def processStatement(request):
                     else:
                         return JsonResponse({'error': 'Unsupported file format. Please upload a CSV or Excel file.'}, status=400)
 
-                    print(df)
-                    print(colOrder)
+                    if colOrder:
+                        colOrder = colOrder.split(',')
 
-                    # Process the DataFrame as needed
-                    # preprocess(df)
+                        # Check if the number of columns in colOrder matches the number of columns in the file
+                        if len(colOrder) != len(df.columns):
+                            return JsonResponse({'error': 'Column count mismatch. Please provide column names for all columns in the file.'}, status=400)
+
+                        # Rename columns based on colOrder
+                        col_mapping = {df.columns[i]: colOrder[i]
+                                       for i in range(len(colOrder))}
+                        df.rename(columns=col_mapping, inplace=True)
+
+                    # Process the DataFrame as needed.
+                    preprocess(df)
 
                     # Return a response
                     response_data = {
@@ -188,31 +197,28 @@ def processStatement(request):
         return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 
-# headerlist = ['Date', 'Desc', 'Withdrawal', 'Deposit', 'Balance']
-
-
 def preprocess(df):
+    # Clean column names by stripping leading and trailing whitespace
+    df.columns = df.columns.str.strip()
+
     current_savings = df[df['Withdrawal'] != 0]['Withdrawal'].sum(
     ) - df[df['Deposit'] != 0]['Deposit'].sum()
     total_spent = df[df['Withdrawal'] != 0]['Withdrawal'].sum()
     total_deposited = df[df['Deposit'] != 0]['Deposit'].sum()
 
-    avg_weekly_deposits = df['Deposit'].sum() / df['Week'].nunique()
-    avg_weekly_withdrawals = df['Withdrawal'].sum() / df['Week'].nunique()
-    savings_per_week = avg_weekly_deposits - avg_weekly_withdrawals
+    # avg_weekly_deposits = df['Deposit'].sum() / df['Week'].nunique()
+    # avg_weekly_withdrawals = df['Withdrawal'].sum() / df['Week'].nunique()
+    # savings_per_week = avg_weekly_deposits - avg_weekly_withdrawals
 
-    avg_monthly_deposits = df['Deposit'].sum() / df['Month'].nunique()
-    avg_monthly_withdrawals = df['Withdrawal'].sum() / df['Month'].nunique()
-    savings_per_month = avg_monthly_deposits - avg_monthly_withdrawals
+    # avg_monthly_deposits = df['Deposit'].sum() / df['Month'].nunique()
+    # avg_monthly_withdrawals = df['Withdrawal'].sum() / df['Month'].nunique()
+    # savings_per_month = avg_monthly_deposits - avg_monthly_withdrawals
 
-    monthly_income = avg_monthly_deposits
-
-    total_invested = df[df['Category'] == 'Investment']['Deposit'].sum()
+    # monthly_income = avg_monthly_deposits
 
     print(current_savings)
     print(total_spent)
     print(total_deposited)
-    print(savings_per_week)
-    print(savings_per_month)
-    print(monthly_income)
-    print(total_invested)
+    # print(savings_per_week)
+    # print(savings_per_month)
+    # print(monthly_income)
