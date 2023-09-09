@@ -155,21 +155,29 @@ def addDebt(request):
 def processStatement(request):
     if request.method == 'POST':
         try:
-            # Assuming the data is sent as JSON
-            data = json.loads(request.body.decode('utf-8'))
-            # Convert the JSON data to a pandas DataFrame
-            df = pd.DataFrame(data)
-            print(df)
-            # Process the DataFrame as needed
-            # ...
-            preprocess(df)
-            # Return a response, for example:
-            response_data = {'message': 'Statement processed successfully'}
-            return JsonResponse(response_data)
+            # Check if a file is included in the request
+            if 'file' in request.FILES:
+                uploaded_file = request.FILES['file']
+                # Process the uploaded file
+                # Modify this based on your file format (e.g., .xlsx)
+                df = pd.read_csv(uploaded_file)
+                print(df)
+
+                # Process the DataFrame as needed
+                preprocess(df)
+
+                # Return a response
+                response_data = {'message': 'Statement processed successfully'}
+                return JsonResponse(response_data)
+            else:
+                return JsonResponse({'error': 'No file was uploaded'}, status=400)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
+headerlist = ['Date', 'Desc', 'Withdrawal', 'Deposit', 'Balance']
 
 
 def preprocess(df):

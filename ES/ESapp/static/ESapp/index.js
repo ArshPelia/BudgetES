@@ -172,7 +172,7 @@ function importStatement() {
     // Create an input element for file upload
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
-    fileInput.accept = '.xlsx'; // Allow only Excel files
+    // fileInput.accept = '.xlsx'; // Allow only Excel files
 
     // Trigger file input click event when the button is clicked
     fileInput.addEventListener('change', function(event) {
@@ -182,39 +182,24 @@ function importStatement() {
             return; // No file selected, do nothing
         }
 
-        // Read the Excel file
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const data = e.target.result;
+        // Create a FormData object
+        const formData = new FormData();
+        formData.append('file', file); // Append the file to the FormData object
 
-            // Parse the Excel data using SheetJS
-            const workbook = XLSX.read(data, { type: 'binary' });
-            const sheetName = workbook.SheetNames[0]; // Assuming you have a single sheet
-
-            // Convert Excel data to JSON
-            const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-            console.log(JSON.stringify(jsonData))
-
-            // Send the JSON data to the server
-            fetch('/statement/process', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(jsonData), // Send the JSON data
-            })
-            .then(response => response.json())
-            .then(result => {
-                // Process the response from the server as needed
-                console.log(result);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while processing the statement.');
-            });
-        };
-
-        reader.readAsBinaryString(file);
+        // Send the file to the server
+        fetch('/statement/process', {
+            method: 'POST',
+            body: formData, // Send the FormData object with the file
+        })
+        .then(response => response.json())
+        .then(result => {
+            // Process the response from the server as needed
+            console.log(result);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while processing the statement.');
+        });
     });
 
     // Trigger the file input dialog
