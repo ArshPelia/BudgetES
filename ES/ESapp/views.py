@@ -1,4 +1,8 @@
 import json
+import calendar
+import pandas as pd
+import numpy as np
+
 import requests
 import sys
 
@@ -21,7 +25,6 @@ from requests.exceptions import HTTPError, ConnectionError, Timeout, RequestExce
 # Load environment variables from file
 from dotenv import load_dotenv
 
-import pandas as pd
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -200,25 +203,35 @@ def processStatement(request):
 def preprocess(df):
     # Clean column names by stripping leading and trailing whitespace
     df.columns = df.columns.str.strip()
+    # replace NaN with 0, inplace=True means it will change the original dataframe
+    df.replace(np.nan, 0, inplace=True)
+
+    print(df)
+
+    # convert the date column to a datetime format
+    df['Date'] = pd.to_datetime(df['Date'])
+    df['Week'] = df['Date'].dt.isocalendar().week
+    df['Month'] = df['Date'].dt.month
+    df['Year'] = df['Date'].dt.year
 
     current_savings = df[df['Withdrawal'] != 0]['Withdrawal'].sum(
     ) - df[df['Deposit'] != 0]['Deposit'].sum()
     total_spent = df[df['Withdrawal'] != 0]['Withdrawal'].sum()
     total_deposited = df[df['Deposit'] != 0]['Deposit'].sum()
 
-    # avg_weekly_deposits = df['Deposit'].sum() / df['Week'].nunique()
-    # avg_weekly_withdrawals = df['Withdrawal'].sum() / df['Week'].nunique()
-    # savings_per_week = avg_weekly_deposits - avg_weekly_withdrawals
+    avg_weekly_deposits = df['Deposit'].sum() / df['Week'].nunique()
+    avg_weekly_withdrawals = df['Withdrawal'].sum() / df['Week'].nunique()
+    savings_per_week = avg_weekly_deposits - avg_weekly_withdrawals
 
-    # avg_monthly_deposits = df['Deposit'].sum() / df['Month'].nunique()
-    # avg_monthly_withdrawals = df['Withdrawal'].sum() / df['Month'].nunique()
-    # savings_per_month = avg_monthly_deposits - avg_monthly_withdrawals
+    avg_monthly_deposits = df['Deposit'].sum() / df['Month'].nunique()
+    avg_monthly_withdrawals = df['Withdrawal'].sum() / df['Month'].nunique()
+    savings_per_month = avg_monthly_deposits - avg_monthly_withdrawals
 
-    # monthly_income = avg_monthly_deposits
+    monthly_income = avg_monthly_deposits
 
     print(current_savings)
     print(total_spent)
     print(total_deposited)
-    # print(savings_per_week)
-    # print(savings_per_month)
-    # print(monthly_income)
+    print(savings_per_week)
+    print(savings_per_month)
+    print(monthly_income)
